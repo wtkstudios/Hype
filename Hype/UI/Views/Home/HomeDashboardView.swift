@@ -469,11 +469,7 @@ struct HomeDashboardView: View {
                                 HStack(spacing: 8) {
                                     Text(video.phase.rawValue)
                                         .font(.system(size: 10, weight: .bold))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(video.phase.color.opacity(0.15))
                                         .foregroundColor(video.phase.color)
-                                        .cornerRadius(4)
                                     
                                     Text(video.delta)
                                         .font(.system(size: 12, weight: .bold, design: .monospaced))
