@@ -8,14 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var authViewModel = TikTokAuthViewModel()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if authViewModel.isAuthenticated {
+                MainTabView()
+            } else {
+                OnboardingView()
+            }
         }
-        .padding()
+        .environmentObject(authViewModel)
     }
 }
 

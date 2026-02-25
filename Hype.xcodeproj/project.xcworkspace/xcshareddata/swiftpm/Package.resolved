@@ -1,0 +1,24 @@
+{
+  "originHash" : "2ea041d6f0cae6a10bc32a75eb5f8f617abddeff82db6fd5821ef30e1b152a10",
+  "pins" : [
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/groue/GRDB.swift.git",
+      "state" : {
+        "revision" : "36e30a6f1ef10e4194f6af0cff90888526f0c115",
+        "version" : "7.10.0"
+      }
+    },
+    {
+      "identity" : "tiktok-opensdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tiktok/tiktok-opensdk-ios",
+      "state" : {
+        "branch" : "main",
+        "revision" : "cb0cdc785b653c3be116fd1302ec280fbcfac695"
+      }
+    }
+  ],
+  "version" : 3
+}
