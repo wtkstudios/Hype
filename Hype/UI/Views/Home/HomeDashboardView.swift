@@ -322,7 +322,7 @@ struct HomeDashboardView: View {
                         Spacer()
                         
                         // RIGHT CLUSTER
-                        VStack(alignment: .trailing, spacing: 18) {
+                        VStack(alignment: .center, spacing: 14) {
                             // Graph
                             Path { path in
                                 path.move(to: CGPoint(x: 0, y: 35))
@@ -335,7 +335,7 @@ struct HomeDashboardView: View {
                             .frame(width: 80, height: 40) // Match width of Account graph above for symmetry
                             
                             // Phase Block
-                            VStack(alignment: .trailing, spacing: 6) {
+                            VStack(alignment: .center, spacing: 6) {
                                 HStack(spacing: 6) {
                                     Text("PHASE:")
                                         .font(.system(size: 10, weight: .bold))
@@ -359,7 +359,7 @@ struct HomeDashboardView: View {
                                     .lineLimit(1)
                             }
                         }
-                        .padding(.trailing, 28) // Align symmetrically with Account row above
+                        .padding(.trailing, 14) // Offset for .center alignment to maintain perfect graph edge symmetry
                         .padding(.bottom, 2)
                     }
                     .padding(.top, 16)
