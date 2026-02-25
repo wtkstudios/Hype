@@ -187,7 +187,7 @@ struct HomeDashboardView: View {
                             VStack(alignment: .trailing, spacing: -2) {
                                 Text("INDEX")
                                     .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(Color.HYPE.text.opacity(0.5))
+                                    .foregroundColor(Color(red: 0.8, green: 0.7, blue: 1.0)) // Lavender
                                     .kerning(1)
                                 
                                 Text("\(viewModel.momentumIndex)")
@@ -242,9 +242,8 @@ struct HomeDashboardView: View {
                             .padding(.trailing, 28) // Prevent chevron collision
                     }
                     
-                    // Main Content
+                    // Score & Graph Row
                     HStack(alignment: .center, spacing: 16) {
-                        // LEFT CLUSTER
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(alignment: .top, spacing: 8) {
                                 Text(String(format: "%.1f", viewModel.hypeScore))
@@ -282,40 +281,9 @@ struct HomeDashboardView: View {
                                 .font(.system(size: 12, weight: .black))
                                 .foregroundColor(Color.HYPE.primary)
                                 .kerning(1)
-                                .padding(.bottom, 4)
-                            
-                            // Mini Metrics Row
-                            HStack(spacing: 8) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Velocity")
-                                        .font(.system(size: 10, weight: .medium))
-                                        .foregroundColor(Color.HYPE.text.opacity(0.5))
-                                        .lineLimit(1)
-                                    Text("High")
-                                        .font(.system(size: 12, weight: .bold))
-                                        .foregroundColor(Color.HYPE.text)
-                                }
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Shares")
-                                        .font(.system(size: 10, weight: .medium))
-                                        .foregroundColor(Color.HYPE.text.opacity(0.5))
-                                        .lineLimit(1)
-                                    Text("12k")
-                                        .font(.system(size: 12, weight: .bold))
-                                        .foregroundColor(Color.HYPE.text)
-                                }
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Comments")
-                                        .font(.system(size: 10, weight: .medium))
-                                        .foregroundColor(Color.HYPE.text.opacity(0.5))
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.8)
-                                    Text("4.5k")
-                                        .font(.system(size: 12, weight: .bold))
-                                        .foregroundColor(Color.HYPE.text)
-                                }
-                            }
                         }
+                        
+                        Spacer()
                         
                         // RIGHT CLUSTER: Graph adjacent to score
                         ZStack(alignment: .bottomLeading) {
@@ -332,23 +300,62 @@ struct HomeDashboardView: View {
                             .stroke(GraphColorResolver.strokeColor(trend: .up), lineWidth: 3.5)
                             .shadow(color: GraphColorResolver.strokeColor(trend: .up).opacity(0.5), radius: 3, x: 0, y: 2)
                         }
-                        .offset(y: -15) // align graph with midline
+                        .offset(y: 8)
+                    }
+                    .padding(.top, 16) // move hype score and graph down
+                    
+                    // Metrics & Phase Row
+                    HStack(alignment: .bottom, spacing: 16) {
+                        // Mini Metrics Row
+                        HStack(spacing: 8) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Velocity")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(Color.HYPE.text.opacity(0.5))
+                                    .lineLimit(1)
+                                Text("High")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(Color.HYPE.text)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Shares")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(Color.HYPE.text.opacity(0.5))
+                                    .lineLimit(1)
+                                Text("12k")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(Color.HYPE.text)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Comments")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(Color.HYPE.text.opacity(0.5))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                                Text("4.5k")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(Color.HYPE.text)
+                            }
+                        }
                         
                         Spacer()
-                    }
-                    
-                    // BOTTOM-RIGHT (new placement for expanding + baseline)
-                    HStack {
-                        Spacer()
+                        
+                        // BOTTOM-RIGHT (Phase block)
                         VStack(alignment: .trailing, spacing: 6) {
-                            Text(viewModel.currentPhase.rawValue.uppercased())
-                                .font(.system(size: 10, weight: .black))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 4)
-                                .background(Color.HYPE.primary)
-                                .foregroundColor(Color.HYPE.base)
-                                .cornerRadius(4)
-                                .fixedSize(horizontal: true, vertical: false)
+                            HStack(spacing: 6) {
+                                Text("PHASE:")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(Color.HYPE.text.opacity(0.5))
+                                    
+                                Text(viewModel.currentPhase.rawValue.uppercased())
+                                    .font(.system(size: 8, weight: .black))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 4)
+                                    .background(Color.HYPE.primary)
+                                    .foregroundColor(Color.HYPE.base)
+                                    .cornerRadius(4)
+                                    .fixedSize(horizontal: true, vertical: false)
+                            }
                             
                             Text("+15% VS BASELINE")
                                 .font(.system(size: 10, weight: .semibold, design: .monospaced))
@@ -357,7 +364,7 @@ struct HomeDashboardView: View {
                                 .lineLimit(2)
                         }
                     }
-                    .padding(.top, -12) // tighten up closer to graph
+                    .padding(.top, 8)
                 }
                 .padding()
                 .background(Color.white.opacity(0.08))
