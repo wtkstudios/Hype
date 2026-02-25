@@ -324,20 +324,15 @@ struct HomeDashboardView: View {
                         // RIGHT CLUSTER
                         VStack(alignment: .trailing, spacing: 18) {
                             // Graph
-                            ZStack(alignment: .bottomLeading) {
-                                Rectangle()
-                                    .fill(Color.clear)
-                                    .frame(width: 80, height: 40) // Match width of Account graph above for symmetry
-                                
-                                Path { path in
-                                    path.move(to: CGPoint(x: 0, y: 35))
-                                    path.addLine(to: CGPoint(x: 25, y: 30))
-                                    path.addLine(to: CGPoint(x: 50, y: 18))
-                                    path.addLine(to: CGPoint(x: 80, y: 5))
-                                }
-                                .stroke(GraphColorResolver.strokeColor(trend: .up), lineWidth: 3.5)
-                                .shadow(color: GraphColorResolver.strokeColor(trend: .up).opacity(0.5), radius: 3, x: 0, y: 2)
+                            Path { path in
+                                path.move(to: CGPoint(x: 0, y: 35))
+                                path.addLine(to: CGPoint(x: 25, y: 30))
+                                path.addLine(to: CGPoint(x: 50, y: 18))
+                                path.addLine(to: CGPoint(x: 80, y: 5))
                             }
+                            .stroke(GraphColorResolver.strokeColor(trend: .up), lineWidth: 3.5)
+                            .shadow(color: GraphColorResolver.strokeColor(trend: .up).opacity(0.5), radius: 3, x: 0, y: 2)
+                            .frame(width: 80, height: 40) // Match width of Account graph above for symmetry
                             
                             // Phase Block
                             VStack(alignment: .trailing, spacing: 6) {
