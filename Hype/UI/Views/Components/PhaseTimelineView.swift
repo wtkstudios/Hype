@@ -20,14 +20,14 @@ struct PhaseTimelineView: View {
                     VStack(spacing: 6) {
                         // The track
                         Rectangle()
-                            .fill(isActive ? Color.HYPE.primary : (isNext ? Color.HYPE.primary.opacity(0.3) : Color.white.opacity(0.1)))
+                            .fill(isActive ? phase.color : (isNext ? phase.color.opacity(0.3) : Color.white.opacity(0.1)))
                             .frame(height: 4)
                             .cornerRadius(2)
                         
                         // Phase Label
                         Text(phase.rawValue.uppercased())
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(isActive ? Color.HYPE.primary : Color.HYPE.text.opacity(0.4))
+                            .foregroundColor(isActive ? phase.color : Color.HYPE.text.opacity(0.4))
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
@@ -43,7 +43,7 @@ struct PhaseTimelineView: View {
                     
                     Text("\(prediction.nextPhase.rawValue.uppercased()) (\(Int(prediction.nextPhaseProbability * 100))%)")
                         .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundColor(Color.HYPE.primary)
+                        .foregroundColor(prediction.nextPhase.color)
                 }
                 .padding(.top, 4)
             }

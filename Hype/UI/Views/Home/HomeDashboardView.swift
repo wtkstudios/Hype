@@ -52,7 +52,7 @@ struct HomeDashboardView: View {
                     }
                     .padding(.horizontal)
                     .padding(.top, 10)
-                    .padding(.bottom, 100)
+                    .padding(.bottom, 24)
                 }
             }
             .navigationBarHidden(true)

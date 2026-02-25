@@ -46,7 +46,7 @@ struct PostDetailView: View {
         VStack(spacing: 8) {
             Text("HYPE SCORE")
                 .font(.system(size: 12, weight: .black))
-                .foregroundColor(Color.HYPE.primary)
+                .foregroundColor(video.phase.color)
                 .kerning(1)
             
             ZStack {
@@ -54,9 +54,9 @@ struct PostDetailView: View {
                     .font(.system(size: 80, weight: .black))
                     .foregroundColor(Color.HYPE.text)
                 
-                // Diagonal marker highlight (Single instance of Tangerine permitted)
+                // Diagonal marker highlight matching the current phase
                 Rectangle()
-                    .fill(Color.HYPE.tangerine.opacity(0.3))
+                    .fill(video.phase.color.opacity(0.3))
                     .frame(width: 140, height: 20)
                     .rotationEffect(.degrees(-5))
                     .offset(y: 20)
@@ -91,7 +91,7 @@ struct PostDetailView: View {
                     path.addLine(to: CGPoint(x: 0, y: 170))
                 }
                 .fill(LinearGradient(
-                    gradient: Gradient(colors: [Color.HYPE.primary.opacity(0.15), Color.HYPE.primary.opacity(0.0)]),
+                    gradient: Gradient(colors: [video.phase.color.opacity(0.15), video.phase.color.opacity(0.0)]),
                     startPoint: .top,
                     endPoint: .bottom
                 ))
@@ -110,13 +110,13 @@ struct PostDetailView: View {
                     path.addCurve(to: CGPoint(x: 100, y: 90), control1: CGPoint(x: 40, y: 130), control2: CGPoint(x: 70, y: 90))
                     path.addCurve(to: CGPoint(x: 200, y: 40), control1: CGPoint(x: 140, y: 90), control2: CGPoint(x: 170, y: 40))
                 }
-                .stroke(Color.HYPE.primary, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                .stroke(video.phase.color, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
                 
                 // Latest Point Node
                 Circle()
                     .fill(Color.HYPE.base)
                     .frame(width: 8, height: 8)
-                    .overlay(Circle().stroke(Color.HYPE.primary, lineWidth: 2))
+                    .overlay(Circle().stroke(video.phase.color, lineWidth: 2))
                     .position(x: 200, y: 40)
             }
         }
@@ -129,7 +129,7 @@ struct PostDetailView: View {
                 .foregroundColor(Color.HYPE.text.opacity(0.7))
             
             HStack(spacing: 12) {
-                driverCard(title: "Velocity", value: "High", color: Color.HYPE.primary)
+                driverCard(title: "Velocity", value: "High", color: video.phase.color)
                 driverCard(title: "Shares", value: "4.2%", color: Color.HYPE.tea) // Strict constraint: Use Tea, not Energy
                 driverCard(title: "Comments", value: "Avg", color: Color.HYPE.text.opacity(0.5))
             }
@@ -172,11 +172,11 @@ struct PostDetailView: View {
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.HYPE.primary.opacity(0.1))
+            .background(video.phase.color.opacity(0.1))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.HYPE.primary.opacity(0.3), lineWidth: 1)
+                    .stroke(video.phase.color.opacity(0.3), lineWidth: 1)
             )
             
             TrajectoryPanelView(forecast: ForecastSnapshot(
