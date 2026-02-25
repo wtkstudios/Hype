@@ -424,10 +424,25 @@ struct HomeDashboardView: View {
     
     private var recentPostsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("RECENT POSTS")
-                .font(.system(size: 14, weight: .black))
-                .foregroundColor(Color.HYPE.text.opacity(0.7))
-                .kerning(1)
+            HStack {
+                Text("RECENT POSTS")
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundColor(Color.HYPE.text.opacity(0.7))
+                    .kerning(1)
+                
+                Spacer()
+                
+                NavigationLink(destination: AllPostsListView(viewModel: viewModel)) {
+                    HStack(spacing: 4) {
+                        Text("SHOW ALL")
+                            .font(.system(size: 10, weight: .black))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .bold))
+                    }
+                    .foregroundColor(Color.HYPE.text.opacity(0.5))
+                }
+            }
+            .padding(.trailing, 4)
             
             VStack(spacing: 12) {
                 ForEach([viewModel.mockVideo1, viewModel.mockVideo2, viewModel.mockVideo3]) { video in
