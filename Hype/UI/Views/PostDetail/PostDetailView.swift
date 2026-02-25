@@ -126,12 +126,23 @@ struct PostDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("DRIVERS")
                 .font(.system(size: 14, weight: .bold))
-                .foregroundColor(Color.HYPE.text.opacity(0.7))
+                .foregroundColor(Color.HYPE.primary)
             
             HStack(spacing: 12) {
-                driverCard(title: "Velocity", value: "High", color: video.phase.color)
-                driverCard(title: "Shares", value: "4.2%", color: Color.HYPE.tea) // Strict constraint: Use Tea, not Energy
-                driverCard(title: "Comments", value: "Avg", color: Color.HYPE.text.opacity(0.5))
+                // Determine neon color for velocity based on value
+                let velocityColor: Color = {
+                    let val = "High" // Hardcoded for MVP, ideally dynamic
+                    switch val.lowercased() {
+                    case "high": return Color.HYPE.neonGreen
+                    case "moderate", "avg": return Color.HYPE.mustard
+                    case "low": return Color.HYPE.neonRed
+                    default: return Color.HYPE.text
+                    }
+                }()
+                
+                driverCard(title: "Velocity", value: "High", color: velocityColor)
+                driverCard(title: "Shares", value: "4.2%", color: Color.HYPE.text)
+                driverCard(title: "Comments", value: "Avg", color: Color.HYPE.text)
             }
         }
     }
@@ -140,7 +151,7 @@ struct PostDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title.uppercased())
                 .font(.system(size: 10, weight: .black))
-                .foregroundColor(Color.HYPE.text.opacity(0.5))
+                .foregroundColor(Color.HYPE.primary)
             Text(value)
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(color)
