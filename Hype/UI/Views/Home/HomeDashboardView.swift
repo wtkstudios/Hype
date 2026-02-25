@@ -15,14 +15,15 @@ struct DashboardViewModel {
     let currentAction = RecommendedAction.respondToComment
     
     // Recent videos placeholder
-    let mockVideo1 = VideoCardData(id: "1", title: "Waitlist Launch Hook", score: 84.2, phase: .expanding, delta: "+15%")
-    let mockVideo2 = VideoCardData(id: "2", title: "Product Teaser", score: 55.0, phase: .plateau, delta: "-2%")
-    let mockVideo3 = VideoCardData(id: "3", title: "Scrapbook Aesthetic", score: 42.1, phase: .testing, delta: "+1%")
+    let mockVideo1 = VideoCardData(id: "1", title: "Waitlist Launch Hook", date: "Oct 24", score: 84.2, phase: .expanding, delta: "+15%")
+    let mockVideo2 = VideoCardData(id: "2", title: "Product Teaser", date: "Oct 21", score: 55.0, phase: .plateau, delta: "-2%")
+    let mockVideo3 = VideoCardData(id: "3", title: "Scrapbook Aesthetic", date: "Oct 18", score: 42.1, phase: .testing, delta: "+1%")
 }
 
 struct VideoCardData: Identifiable {
     let id: String
     let title: String
+    let date: String
     let score: Double
     let phase: DistributionPhase
     let delta: String
@@ -454,11 +455,16 @@ struct HomeDashboardView: View {
                                 .frame(width: 60, height: 80)
                                 .cornerRadius(8)
                             
-                            VStack(alignment: .leading, spacing: 6) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(video.date.uppercased())
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(Color.HYPE.text.opacity(0.4))
+                                
                                 Text(video.title)
                                     .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(Color.HYPE.text)
                                     .lineLimit(1)
+                                    .padding(.bottom, 2)
                                 
                                 HStack(spacing: 8) {
                                     Text(video.phase.rawValue)
@@ -477,14 +483,18 @@ struct HomeDashboardView: View {
                             
                             Spacer()
                             
-                            VStack(alignment: .trailing) {
+                            VStack(alignment: .trailing, spacing: 2) {
                                 Text(String(format: "%.1f", video.score))
                                     .font(.system(size: 24, weight: .black))
                                     .foregroundColor(Color.HYPE.text)
+                                
+                                Text("HYPE SCORE")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundColor(Color.HYPE.primary)
                             }
                         }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
                         .background(Color.white.opacity(0.05))
                         .cornerRadius(12)
                     }

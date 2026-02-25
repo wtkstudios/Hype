@@ -12,9 +12,9 @@ struct AllPostsListView: View {
             viewModel.mockVideo1,
             viewModel.mockVideo2,
             viewModel.mockVideo3,
-            VideoCardData(id: "4", title: "Day In The Life", score: 88.5, phase: .expanding, delta: "+22%"),
-            VideoCardData(id: "5", title: "Behind The Scenes", score: 62.1, phase: .plateau, delta: "-5%"),
-            VideoCardData(id: "6", title: "Q&A Setup", score: 35.0, phase: .testing, delta: "+4%")
+            VideoCardData(id: "4", title: "Day In The Life", date: "Oct 15", score: 88.5, phase: .expanding, delta: "+22%"),
+            VideoCardData(id: "5", title: "Behind The Scenes", date: "Oct 12", score: 62.1, phase: .plateau, delta: "-5%"),
+            VideoCardData(id: "6", title: "Q&A Setup", date: "Oct 11", score: 35.0, phase: .testing, delta: "+4%")
         ]
     }
     
@@ -108,11 +108,16 @@ struct PostListItem: View {
                 .frame(width: 60, height: 80)
                 .cornerRadius(8)
             
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(video.date.uppercased())
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(Color.HYPE.text.opacity(0.4))
+                
                 Text(video.title)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color.HYPE.text)
                     .lineLimit(1)
+                    .padding(.bottom, 2)
                 
                 HStack(spacing: 8) {
                     Text(video.phase.rawValue)
@@ -131,15 +136,22 @@ struct PostListItem: View {
             
             Spacer()
             
-            VStack(alignment: .trailing) {
-                Text(String(format: "%.1f", video.score))
-                    .font(.system(size: 24, weight: .black))
-                    .foregroundColor(Color.HYPE.text)
+            VStack(alignment: .trailing, spacing: 2) {
+                HStack(spacing: 8) {
+                    Text(String(format: "%.1f", video.score))
+                        .font(.system(size: 24, weight: .black))
+                        .foregroundColor(Color.HYPE.text)
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(Color.white.opacity(0.3))
+                        .padding(.top, 4)
+                }
                 
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(Color.white.opacity(0.3))
-                    .padding(.top, 4)
+                Text("HYPE SCORE")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundColor(Color.HYPE.primary)
+                    .padding(.trailing, 20) // approximate alignment under score
             }
         }
         .padding(.vertical, 12)
