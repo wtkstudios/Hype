@@ -64,7 +64,7 @@ struct PostDetailView: View {
             
             PhaseTimelineView(prediction: PhasePrediction(
                 currentPhase: video.phase,
-                nextPhase: .secondaryPush,
+                nextPhase: .hyper,
                 nextPhaseProbability: 0.85,
                 updatedAt: Date()
             ))

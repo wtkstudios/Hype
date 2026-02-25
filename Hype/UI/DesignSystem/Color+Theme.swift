@@ -26,8 +26,37 @@ extension Color {
         /// Neon Red (Declining Health / Below Baseline Sparklines)
         static let neonRed = Color(hex: "FF2A2A")
         
+        /// Mustard Yellow (Testing)
+        static let mustard = Color(hex: "EAB308")
+        
+        /// Sky (Plateau)
+        static let sky = Color(hex: "38BDF8")
+        
+        /// Red Passion (Re-ignite)
+        static let redPassion = Color(hex: "E11D48")
+        
         // Aliases for Engine compatibility
         static let energy = tangerine
+    }
+}
+
+// MARK: - DistributionPhase Color Extension
+extension DistributionPhase {
+    var color: Color {
+        switch self {
+        case .testing:
+            return Color.HYPE.mustard
+        case .expanding:
+            return Color.HYPE.tea
+        case .hyper:
+            return Color.HYPE.tangerine
+        case .plateau:
+            return Color.HYPE.sky
+        case .reignite:
+            return Color.HYPE.redPassion
+        case .unknown:
+            return Color.HYPE.primary
+        }
     }
 }
 

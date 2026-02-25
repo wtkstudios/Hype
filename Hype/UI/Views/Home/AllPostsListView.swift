@@ -42,12 +42,12 @@ struct AllPostsListView: View {
     private var filterHeader: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                FilterPill(title: "All", isSelected: selectedPhase == nil) {
+                FilterPill(title: "All", isSelected: selectedPhase == nil, activeColor: Color.HYPE.primary) {
                     selectedPhase = nil
                 }
                 
                 ForEach([DistributionPhase.expanding, DistributionPhase.testing, DistributionPhase.plateau], id: \.self) { phase in
-                    FilterPill(title: phase.rawValue.capitalized, isSelected: selectedPhase == phase) {
+                    FilterPill(title: phase.rawValue.capitalized, isSelected: selectedPhase == phase, activeColor: phase.color) {
                         selectedPhase = phase
                     }
                 }
@@ -78,6 +78,7 @@ struct AllPostsListView: View {
 struct FilterPill: View {
     let title: String
     let isSelected: Bool
+    let activeColor: Color
     let action: () -> Void
     
     var body: some View {
@@ -86,7 +87,7 @@ struct FilterPill: View {
                 .font(.system(size: 13, weight: .bold))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.HYPE.primary : Color.white.opacity(0.1))
+                .background(isSelected ? activeColor : Color.white.opacity(0.1))
                 .foregroundColor(isSelected ? Color.HYPE.base : Color.HYPE.text)
                 .cornerRadius(20)
         }
@@ -124,8 +125,8 @@ struct PostListItem: View {
                         .font(.system(size: 10, weight: .bold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.white.opacity(0.1))
-                        .foregroundColor(Color.HYPE.text)
+                        .background(video.phase.color.opacity(0.15))
+                        .foregroundColor(video.phase.color)
                         .cornerRadius(4)
                     
                     Text(video.delta)

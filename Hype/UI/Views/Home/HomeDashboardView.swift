@@ -345,8 +345,8 @@ struct HomeDashboardView: View {
                                         .font(.system(size: 8, weight: .black))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 4)
-                                        .background(Color.HYPE.primary)
-                                        .foregroundColor(Color.HYPE.base)
+                                        .background(viewModel.currentPhase.color.opacity(0.15))
+                                        .foregroundColor(viewModel.currentPhase.color)
                                         .cornerRadius(4)
                                         .fixedSize(horizontal: true, vertical: false)
                                 }
@@ -471,8 +471,8 @@ struct HomeDashboardView: View {
                                         .font(.system(size: 10, weight: .bold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
-                                        .background(Color.white.opacity(0.1))
-                                        .foregroundColor(Color.HYPE.text)
+                                        .background(video.phase.color.opacity(0.15))
+                                        .foregroundColor(video.phase.color)
                                         .cornerRadius(4)
                                     
                                     Text(video.delta)

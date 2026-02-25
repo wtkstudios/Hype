@@ -4,7 +4,7 @@ struct PhaseTimelineView: View {
     let prediction: PhasePrediction
     
     // Order of lifecycle phases
-    let phases: [DistributionPhase] = [.testing, .expanding, .secondaryPush, .plateau, .reignite]
+    let phases: [DistributionPhase] = [.testing, .expanding, .hyper, .plateau, .reignite]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

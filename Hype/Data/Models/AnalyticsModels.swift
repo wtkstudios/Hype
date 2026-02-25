@@ -13,12 +13,12 @@ struct BaselineProfile: Codable, FetchableRecord, PersistableRecord {
     var volatilityIndex: Double?
 }
 
-enum DistributionPhase: String, Codable {
+enum DistributionPhase: String, Codable, CaseIterable {
     case testing = "Testing"
     case expanding = "Expanding"
-    case secondaryPush = "Secondary Push"
+    case hyper = "HYPER"
     case plateau = "Plateau"
-    case reignite = "Reignite"
+    case reignite = "Re-ignite"
     case unknown = "Unknown"
 }
 
