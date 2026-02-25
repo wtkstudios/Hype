@@ -157,7 +157,7 @@ struct PostDetailView: View {
                 .foregroundColor(color)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
+        .padding(12)
         .background(Color.white.opacity(0.05))
         .cornerRadius(8)
     }
