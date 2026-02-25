@@ -20,14 +20,14 @@ struct PhaseTimelineView: View {
                     VStack(spacing: 6) {
                         // The track
                         Rectangle()
-                            .fill(isActive ? phase.color : (isNext ? phase.color.opacity(0.3) : Color.white.opacity(0.1)))
+                            .fill(isActive ? phase.color : phase.color.opacity(0.2))
                             .frame(height: 4)
                             .cornerRadius(2)
                         
                         // Phase Label
                         Text(phase.rawValue.uppercased())
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(isActive ? phase.color : Color.HYPE.text.opacity(0.4))
+                            .foregroundColor(isActive ? phase.color : phase.color.opacity(0.4))
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
