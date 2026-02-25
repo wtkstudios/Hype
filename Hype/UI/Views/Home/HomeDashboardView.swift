@@ -301,6 +301,7 @@ struct HomeDashboardView: View {
                             .shadow(color: GraphColorResolver.strokeColor(trend: .up).opacity(0.5), radius: 3, x: 0, y: 2)
                         }
                         .offset(y: 8)
+                        .padding(.trailing, 28) // Align symmetrically with Account row above
                     }
                     .padding(.top, 16) // move hype score and graph down
                     
@@ -363,6 +364,7 @@ struct HomeDashboardView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .lineLimit(2)
                         }
+                        .padding(.trailing, 28) // Match graph constraint above
                     }
                     .padding(.top, 8)
                 }
