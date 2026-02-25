@@ -227,9 +227,7 @@ struct HomeDashboardView: View {
             .buttonStyle(PlainButtonStyle())
             
             // Latest Post Card (Tappable to Post Detail)
-            Button(action: {
-                // Navigate to PostDetailView
-            }) {
+            NavigationLink(destination: PostDetailView(video: viewModel.mockVideo1)) {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         Text("LATEST POST")
@@ -243,7 +241,7 @@ struct HomeDashboardView: View {
                     }
                     
                     // Main Content Columns
-                    HStack(alignment: .bottom, spacing: 16) {
+                    HStack(alignment: .center, spacing: 16) {
                         // LEFT CLUSTER
                         VStack(alignment: .leading, spacing: 18) {
                             // Score Block
