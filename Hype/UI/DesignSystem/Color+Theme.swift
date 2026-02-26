@@ -58,6 +58,24 @@ extension DistributionPhase {
             return Color.HYPE.primary
         }
     }
+    
+    // A brighter, neon-like variation used specifically for active highlighting (glowing/text)
+    var activeColor: Color {
+        switch self {
+        case .testing:
+            return Color(hex: "FDE047") // Brighter yellow
+        case .expanding:
+            return Color.HYPE.neonGreen // Neon green for expanding
+        case .hyper:
+            return Color(hex: "FB923C") // Brighter orange
+        case .plateau:
+            return Color(hex: "7DD3FC") // Brighter sky blue
+        case .reignite:
+            return Color.HYPE.neonRed // Neon red for reignite
+        case .unknown:
+            return Color.HYPE.primary // Fallback
+        }
+    }
 }
 
 // MARK: - Graph Color Resolver
