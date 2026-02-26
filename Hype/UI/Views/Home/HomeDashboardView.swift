@@ -9,8 +9,8 @@ struct DashboardViewModel {
     var totalLikes: Int = 4200000
     var totalComments: Int = 312500
     var hypeScore: Double = 84.2
-    var momentumIndex: Int = 92
-    var volatility: Double = 1.15
+    var overallScore: Int = 92
+    var stabilityLevel: String = "High Stability"
     let currentPhase = DistributionPhase.expanding
     let currentAction = RecommendedAction.respondToComment
     
@@ -111,7 +111,7 @@ struct HomeDashboardView: View {
                 .cornerRadius(100)
             }
             
-            BlinkingMomentumIndicator(momentumIndex: viewModel.momentumIndex)
+            BlinkingMomentumIndicator(overallScore: viewModel.overallScore)
         }
     }
     
@@ -184,14 +184,14 @@ struct HomeDashboardView: View {
                         
                         // RIGHT COLUMN: Performance (Aligned Trailing)
                         VStack(alignment: .trailing, spacing: 8) {
-                            // INDEX Block (Smaller, less dominant)
+                            // OVERALL Block (Smaller, less dominant)
                             VStack(alignment: .trailing, spacing: -2) {
-                                Text("INDEX")
+                                Text("OVERALL")
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundColor(Color(red: 0.8, green: 0.7, blue: 1.0)) // Lavender
                                     .kerning(1)
                                 
-                                Text("\(viewModel.momentumIndex)")
+                                Text("\(viewModel.overallScore)")
                                     .font(.system(size: 40, weight: .black)) // Scaled down 10-15%
                                     .foregroundColor(Color.HYPE.text)
                                     .minimumScaleFactor(0.7)
@@ -205,8 +205,8 @@ struct HomeDashboardView: View {
                                 .padding(.top, 8)
                                 .padding(.bottom, 4)
                             
-                            // Muted Volatility Block
-                            Text("\(String(format: "%.2f", viewModel.volatility)) Moderate Volatility")
+                            // Muted Stability Block
+                            Text(viewModel.stabilityLevel)
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(Color.HYPE.text.opacity(0.6))
                         }
@@ -553,13 +553,13 @@ struct AccountTrendSparklineView: View {
 // MARK: - Subcomponents
 
 struct BlinkingMomentumIndicator: View {
-    let momentumIndex: Int
+    let overallScore: Int
     @State private var isBlinking = false
     
     var color: Color {
-        if momentumIndex >= 80 {
+        if overallScore >= 80 {
             return Color.HYPE.tea // Green
-        } else if momentumIndex >= 50 {
+        } else if overallScore >= 50 {
             return Color.orange // Moderate / Orange
         } else {
             return Color.HYPE.error // Red / Slow dying
@@ -567,9 +567,9 @@ struct BlinkingMomentumIndicator: View {
     }
     
     var text: String {
-        if momentumIndex >= 80 {
+        if overallScore >= 80 {
             return "Momentum: Strong & Stable. Maintain cadence."
-        } else if momentumIndex >= 50 {
+        } else if overallScore >= 50 {
             return "Momentum: Moderate. Monitor closely."
         } else {
             return "Momentum: Slow dying. Action required."

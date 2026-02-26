@@ -74,9 +74,9 @@ struct AccountDashboardView: View {
                     .foregroundColor(Color.HYPE.primary.opacity(0.8))
             }
             
-            // Large Momentum Index
+            // Large OVERALL Score
             HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text("MOMENTUM")
+                Text("OVERALL")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(Color.HYPE.text.opacity(0.5))
                     .kerning(1)
@@ -87,7 +87,7 @@ struct AccountDashboardView: View {
             }
             .padding(.top, 4)
             
-            Text("1.15 Moderate Volatility")
+            Text("High Stability")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(Color.HYPE.tea)
         }
@@ -125,7 +125,7 @@ struct AccountDashboardView: View {
             ChartRow(title: "Followers Trend (Local)", trend: .up, isCritical: false)
             ChartRow(title: "Avg Likes/Post (Tracked)", trend: .flat, isCritical: false)
             ChartRow(title: "Avg Comments/Post", trend: .down, isCritical: false)
-            ChartRow(title: "Momentum Index", trend: .down, isCritical: true)
+            ChartRow(title: "Overall Score", trend: .down, isCritical: true)
         }
     }
     
