@@ -122,44 +122,82 @@ struct PostDetailView: View {
         }
     }
     
+    // Mock DriverPack for rendering since real data plumbing requires VM updates
+    private var mockDriverPack: DriverPack {
+        let builder = DriverPackBuilder()
+        // Simulate a snapshot & baseline
+        let now = Date()
+        let snap1 = VideoSnapshot(videoId: video.id, timestamp: now, createdAt: now.addingTimeInterval(-1800), views: 15400, likes: 2300, comments: 120, shares: 450)
+        let snap2 = VideoSnapshot(videoId: video.id, timestamp: now.addingTimeInterval(-600), createdAt: now.addingTimeInterval(-1800), views: 9000, likes: 1200, comments: 80, shares: 150)
+        let baseline = BaselineBucket(bucket: .min15_30, medianVPM: 200, iqrVPM: 50, medianEPR: 0.1, iqrEPR: 0.05, medianSPM: 5, iqrSPM: 2, medianACC: 0, iqrACC: 5, sampleSize: 20)
+        return builder.buildDriverPack(currentSnapshot: snap1, previousSnapshot: snap2, prevPrevSnapshot: nil, baseline: baseline, confidence01: 0.85, recentVpmHistory: [250, 300, 280], recentAccHistory: [10, -5, 20], recentSpmHistory: [8, 12, 9])
+    }
+    
     private var keyDrivers: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("DRIVERS")
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(Color.HYPE.primary)
-            
-            HStack(spacing: 12) {
-                // Determine neon color for velocity based on value
-                let velocityColor: Color = {
-                    let val = "High" // Hardcoded for MVP, ideally dynamic
-                    switch val.lowercased() {
-                    case "high": return Color.HYPE.neonGreen
-                    case "moderate", "avg": return Color.HYPE.mustard
-                    case "low": return Color.HYPE.neonRed
-                    default: return Color.HYPE.text
-                    }
-                }()
-                
-                driverCard(title: "Velocity", value: "High", color: velocityColor)
-                driverCard(title: "Shares", value: "4.2%", color: Color.HYPE.text)
-                driverCard(title: "Comments", value: "Avg", color: Color.HYPE.text)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("DRIVERS")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(Color.HYPE.primary)
+                Text("Compared to your baseline at this stage.")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(Color.HYPE.text.opacity(0.5))
             }
+            
+            // 2x2 Grid of Driver Cards
+            let columns = [GridItem(.flexible()), GridItem(.flexible())]
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(mockDriverPack.insights) { insight in
+                    DriverCardView(insight: insight)
+                }
+            }
+            
+            // HYPE Composition Bar
+            VStack(alignment: .leading, spacing: 8) {
+                Text("HYPE COMPOSITION")
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .foregroundColor(Color.HYPE.text.opacity(0.4))
+                
+                let contribs = mockDriverPack.contribution
+                let cVel = CGFloat(contribs["Velocity"] ?? 0)
+                let cShr = CGFloat(contribs["Shares"] ?? 0)
+                let cAcc = CGFloat(contribs["Acceleration"] ?? 0)
+                let cEng = CGFloat(contribs["Engagement"] ?? 0)
+                let total = cVel + cShr + cAcc + cEng > 0 ? (cVel + cShr + cAcc + cEng) : 100.0
+                
+                GeometryReader { geo in
+                    HStack(spacing: 2) {
+                        Rectangle().fill(Color.HYPE.tangerine).frame(width: max(0, (cVel / total) * geo.size.width - 2))
+                        Rectangle().fill(Color.HYPE.primary).frame(width: max(0, (cShr / total) * geo.size.width - 2))
+                        Rectangle().fill(Color.HYPE.sky).frame(width: max(0, (cAcc / total) * geo.size.width - 2))
+                        Rectangle().fill(Color.HYPE.tea).frame(width: max(0, (cEng / total) * geo.size.width - 2))
+                    }
+                }
+                .frame(height: 6)
+                .cornerRadius(3)
+                
+                // Legend
+                HStack(spacing: 12) {
+                    legendItem(color: Color.HYPE.tangerine, text: "Velocity")
+                    legendItem(color: Color.HYPE.primary, text: "Shares")
+                    legendItem(color: Color.HYPE.sky, text: "Accel.")
+                    legendItem(color: Color.HYPE.tea, text: "Engage.")
+                }
+                .padding(.top, 4)
+            }
+            .padding(16)
+            .background(Color.white.opacity(0.03))
+            .cornerRadius(12)
         }
     }
     
-    private func driverCard(title: String, value: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title.uppercased())
-                .font(.system(size: 10, weight: .black))
-                .foregroundColor(Color.HYPE.primary)
-            Text(value)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(color)
+    private func legendItem(color: Color, text: String) -> some View {
+        HStack(spacing: 4) {
+            Circle().fill(color).frame(width: 6, height: 6)
+            Text(text)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundColor(Color.HYPE.text.opacity(0.6))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(8)
     }
     
     private var nextAction: some View {
