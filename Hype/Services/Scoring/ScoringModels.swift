@@ -31,7 +31,7 @@ struct BaselineBucket: Codable {
 }
 
 enum PostPhase: String, Codable {
-    case testing, expanding, secondaryPush, plateau, reignite
+    case testing, expanding, breakout, plateau, reignite
 }
 
 struct HypeComputation: Codable {
@@ -40,6 +40,15 @@ struct HypeComputation: Codable {
     let confidence01: Double    // 0–1
     let phase: PostPhase
     let breakoutProb01: Double  // 0–1
+    // The actual weighting formula applied during computation
+    let weights: HypeWeights?
+}
+
+struct HypeWeights: Codable {
+    let vel: Double
+    let shares: Double
+    let accel: Double
+    let engage: Double
 }
 
 enum StabilityLabel: String, Codable {

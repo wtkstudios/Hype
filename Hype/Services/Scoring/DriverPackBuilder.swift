@@ -41,6 +41,13 @@ class DriverPackBuilder {
         return "Low confidence"
     }
     
+    private func determineRelativeStatus(ratio: Double?) -> String? {
+        guard let r = ratio, r > 0 else { return nil }
+        if r >= 1.15 { return "Above usual" }
+        if r <= 0.85 { return "Below usual" }
+        return "On usual"
+    }
+    
     // Main computation
     func buildDriverPack(
         currentSnapshot: VideoSnapshot,
@@ -50,7 +57,8 @@ class DriverPackBuilder {
         confidence01: Double,
         recentVpmHistory: [Double],
         recentAccHistory: [Double],
-        recentSpmHistory: [Double]
+        recentSpmHistory: [Double],
+        now: Date
     ) -> DriverPack {
         
         let eps = RobustStats.epsilon
@@ -107,6 +115,16 @@ class DriverPackBuilder {
         
         let confLabel = determineConfidence(confidence01: confidence01)
         
+        // Common Properties
+        let confidenceInt = Int(round(confidence01 * 100))
+        let ageLabel = baseline.bucket.rawValue
+        
+        let lastUpdateStr: String
+        let minAgo = Int(round(now.timeIntervalSince(currentSnapshot.timestamp) / 60))
+        if minAgo < 1 { lastUpdateStr = "Just now" }
+        else if minAgo < 60 { lastUpdateStr = "\(minAgo)m ago" }
+        else { lastUpdateStr = "\(minAgo/60)h ago" }
+        
         // -----------------------------------------------------
         // Insights Construction
         // -----------------------------------------------------
@@ -115,6 +133,9 @@ class DriverPackBuilder {
         // 1. Velocity
         let velMetricLabel = vpm > 10 ? "Views / min" : "Views / hr"
         let velMetricValue = vpm > 10 ? formatNumber(vpm) : formatNumber(vpm * 60)
+        let velImpact = abs(vpmRatio - 1.0)
+        
+        let velRelative = determineRelativeStatus(ratio: baseline.medianVPM > 0 ? vpmRatio : nil)
         
         insights.append(DriverInsight(
             id: "vel_1",
@@ -123,20 +144,28 @@ class DriverPackBuilder {
             trend: determineTrend(current: vpm, history: recentVpmHistory),
             metricLabel: velMetricLabel,
             metricValue: velMetricValue,
-            secondaryLabel: "\(formatPct(vpmPct)) vs baseline",
+            secondaryLabel: "", // Deprecated formatting in UI
+            relativeStatusText: velRelative,
             confidenceLabel: confLabel,
-            explanation: "Measures distribution speed at this point in the lifecycle.",
+            explanation: "Distribution speed at this stage.",
+            impactScore: velImpact,
+            confidencePercent: confidenceInt,
+            ageBucketLabel: ageLabel,
+            lastUpdateString: lastUpdateStr,
             details: [
-                KeyValueRow(id: "vel_cur", key: "Current (VPM)", value: formatNumber(vpm)),
-                KeyValueRow(id: "vel_med", key: "Baseline (VPM)", value: formatNumber(baseline.medianVPM)),
-                KeyValueRow(id: "vel_age", key: "Age bucket", value: baseline.bucket.rawValue),
-                KeyValueRow(id: "vel_time", key: "Last update", value: currentSnapshot.timestamp.formatted(date: .omitted, time: .shortened))
+                KeyValueRow(id: "vel_cur", key: "Current", value: formatNumber(vpm)),
+                KeyValueRow(id: "vel_med", key: "Usual", value: formatNumber(baseline.medianVPM)),
+                KeyValueRow(id: "vel_time", key: "Updated", value: lastUpdateStr)
             ]
         ))
         
         // 2. Acceleration
         let accTrend = determineTrend(current: acc, history: recentAccHistory)
         let accTrendString = accTrend == .rising ? "Rising" : (accTrend == .falling ? "Falling" : "Flat")
+        let accImpact = abs(accRatio - 1.0)
+        
+        // Spec: Acceleration keeps "Trend: Rising/Falling/Flat" and does NOT show relativeStatusText
+        
         insights.append(DriverInsight(
             id: "acc_1",
             kind: .acceleration,
@@ -145,16 +174,25 @@ class DriverPackBuilder {
             metricLabel: "Δ Views/min",
             metricValue: formatNumber(acc),
             secondaryLabel: "Trend: \(accTrendString)",
+            relativeStatusText: nil, // Retained Trend as secondary context instead
             confidenceLabel: confLabel,
-            explanation: "Signals whether TikTok is increasing distribution or tapering.",
+            explanation: "Signals whether reach is increasing or tapering.",
+            impactScore: accImpact,
+            confidencePercent: confidenceInt,
+            ageBucketLabel: ageLabel,
+            lastUpdateString: lastUpdateStr,
             details: [
-                KeyValueRow(id: "acc_cur", key: "Current Δ", value: formatNumber(acc)),
-                KeyValueRow(id: "acc_prev", key: "Previous VPM", value: formatNumber(vpmPrev)),
-                KeyValueRow(id: "acc_med", key: "Baseline Δ", value: formatNumber(baseline.medianACC))
+                KeyValueRow(id: "acc_cur", key: "Current", value: formatNumber(acc)),
+                KeyValueRow(id: "acc_med", key: "Usual", value: formatNumber(baseline.medianACC)),
+                KeyValueRow(id: "acc_time", key: "Updated", value: lastUpdateStr)
             ]
         ))
         
         // 3. Shares
+        let shareImpact = abs(spmRatio - 1.0)
+        
+        // Spec: Shares keeps "Shares/View: X%" as the context line; do NOT show relativeStatusText.
+        
         insights.append(DriverInsight(
             id: "shr_1",
             kind: .shares,
@@ -163,16 +201,25 @@ class DriverPackBuilder {
             metricLabel: "Shares / min",
             metricValue: formatNumber(spm),
             secondaryLabel: "Shares/View: \(String(format: "%.2f", sv * 100))%",
+            relativeStatusText: nil, // Kept static metric definition per spec
             confidenceLabel: confLabel,
-            explanation: "Shares amplify reach; high share velocity often precedes secondary pushes.",
+            explanation: "Shares amplify reach and can trigger secondary pushes.",
+            impactScore: shareImpact,
+            confidencePercent: confidenceInt,
+            ageBucketLabel: ageLabel,
+            lastUpdateString: lastUpdateStr,
             details: [
-                KeyValueRow(id: "shr_cur", key: "Current (SPM)", value: formatNumber(spm)),
-                KeyValueRow(id: "shr_med", key: "Baseline (SPM)", value: formatNumber(baseline.medianSPM)),
-                KeyValueRow(id: "shr_dev", key: "Deviation", value: "\(formatPct(spmPct))")
+                KeyValueRow(id: "shr_cur", key: "Current", value: formatNumber(spm)),
+                KeyValueRow(id: "shr_med", key: "Usual", value: formatNumber(baseline.medianSPM)),
+                KeyValueRow(id: "shr_time", key: "Updated", value: lastUpdateStr)
             ]
         ))
         
         // 4. Engagement
+        let engImpact = abs(eprRatio - 1.0)
+        
+        let engRelative = determineRelativeStatus(ratio: baseline.medianEPR > 0 ? eprRatio : nil)
+        
         insights.append(DriverInsight(
             id: "eng_1",
             kind: .engagement,
@@ -180,13 +227,18 @@ class DriverPackBuilder {
             trend: .flat, // Engagement density trend is less volatile, flat by default
             metricLabel: "Engagement / view",
             metricValue: "\(String(format: "%.1f", epr * 100))%",
-            secondaryLabel: "\(formatPct(eprPct)) vs baseline",
+            secondaryLabel: "", // Dropped Deviation Strings
+            relativeStatusText: engRelative,
             confidenceLabel: confLabel,
-            explanation: "Density of reactions per view; supports sustained distribution.",
+            explanation: "Reactions per view supporting sustained distribution.",
+            impactScore: engImpact,
+            confidencePercent: confidenceInt,
+            ageBucketLabel: ageLabel,
+            lastUpdateString: lastUpdateStr,
             details: [
-                KeyValueRow(id: "eng_cur", key: "Current Rate", value: "\(String(format: "%.2f", epr * 100))%"),
-                KeyValueRow(id: "eng_med", key: "Baseline Rate", value: "\(String(format: "%.2f", baseline.medianEPR * 100))%"),
-                KeyValueRow(id: "eng_dev", key: "Deviation", value: "\(formatPct(eprPct))")
+                KeyValueRow(id: "eng_cur", key: "Current", value: "\(String(format: "%.2f", epr * 100))%"),
+                KeyValueRow(id: "eng_med", key: "Usual", value: "\(String(format: "%.2f", baseline.medianEPR * 100))%"),
+                KeyValueRow(id: "eng_time", key: "Updated", value: lastUpdateStr)
             ]
         ))
         

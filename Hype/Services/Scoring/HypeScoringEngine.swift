@@ -102,7 +102,8 @@ class HypeScoringEngine {
             hypeRaw01: hRaw01,
             confidence01: confidence01,
             phase: phase,
-            breakoutProb01: breakoutProb01
+            breakoutProb01: breakoutProb01,
+            weights: HypeWeights(vel: wVel, shares: wShare, accel: wAcc, engage: wEng)
         )
     }
 }

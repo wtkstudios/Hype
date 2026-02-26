@@ -4,7 +4,7 @@ struct PhaseTimelineView: View {
     let prediction: PhasePrediction
     
     // Order of lifecycle phases
-    let phases: [DistributionPhase] = [.testing, .expanding, .hyper, .plateau, .reignite]
+    let phases: [DistributionPhase] = [.testing, .expanding, .breakout, .plateau, .reignite]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -52,11 +52,11 @@ struct PhaseIndicatorNode: View {
             // The track
             Rectangle()
                 .fill(isActive ? phase.activeColor : phase.color.opacity(0.2))
-                .frame(height: isActive && phase == .hyper && isPulsing ? 6 : 4)
+                .frame(height: isActive && phase == .breakout && isPulsing ? 6 : 4)
                 .cornerRadius(2)
                 .shadow(
                     color: isActive ? phase.activeColor.opacity(isPulsing ? 0.9 : 0.4) : .clear,
-                    radius: isActive ? (phase == .hyper && isPulsing ? 8 : 4) : 0,
+                    radius: isActive ? (phase == .breakout && isPulsing ? 8 : 4) : 0,
                     x: 0,
                     y: 0
                 )
@@ -69,17 +69,17 @@ struct PhaseIndicatorNode: View {
                 .minimumScaleFactor(0.8)
                 .shadow(
                     color: isActive ? phase.activeColor.opacity(isPulsing ? 0.8 : 0.3) : .clear,
-                    radius: isActive ? (phase == .hyper && isPulsing ? 6 : 2) : 0,
+                    radius: isActive ? (phase == .breakout && isPulsing ? 6 : 2) : 0,
                     x: 0,
                     y: 0
                 )
         }
         .frame(maxWidth: .infinity)
-        .scaleEffect(isActive && phase == .hyper && isPulsing ? 1.05 : 1.0)
+        .scaleEffect(isActive && phase == .breakout && isPulsing ? 1.05 : 1.0)
         .onAppear {
             if isActive {
                 withAnimation(
-                    .easeInOut(duration: phase == .hyper ? 0.35 : 1.5)
+                    .easeInOut(duration: phase == .breakout ? 0.35 : 1.5)
                     .repeatForever(autoreverses: true)
                 ) {
                     isPulsing = true

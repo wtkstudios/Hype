@@ -356,6 +356,12 @@ struct HomeDashboardView: View {
                                     .foregroundColor(Color.HYPE.text.opacity(0.85))
                                     .fixedSize(horizontal: true, vertical: false)
                                     .lineLimit(1)
+                                
+                                Text(viewModel.mockVideo1.title)
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(Color.HYPE.text.opacity(0.5))
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
                             }
                         }
                         .padding(.trailing, 14) // Offset for .center alignment to maintain perfect graph edge symmetry

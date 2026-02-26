@@ -48,12 +48,12 @@ extension DistributionPhase {
             return Color.HYPE.mustard
         case .expanding:
             return Color.HYPE.tea
-        case .hyper:
-            return Color.HYPE.tangerine
+        case .breakout:
+            return Color(hex: "00FFDD") // Neon Cyan
         case .plateau:
-            return Color.HYPE.sky
+            return Color(hex: "A390E4") // Muted Lavender
         case .reignite:
-            return Color.HYPE.redPassion
+            return Color.HYPE.neonRed
         case .unknown:
             return Color.HYPE.primary
         }
@@ -66,7 +66,7 @@ extension DistributionPhase {
             return Color(hex: "FDE047") // Brighter yellow
         case .expanding:
             return Color.HYPE.neonGreen // Neon green for expanding
-        case .hyper:
+        case .breakout:
             return Color(hex: "FB923C") // Brighter orange
         case .plateau:
             return Color(hex: "7DD3FC") // Brighter sky blue

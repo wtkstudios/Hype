@@ -119,10 +119,10 @@ class AnalyticsEngine {
             nextProb = 0.4
         } else if score > 70 && deviation > 1.5 {
             current = .expanding
-            next = .hyper
+            next = .breakout
             nextProb = 0.75
         } else if ageMinutes > 60 && score > 85 {
-            current = .hyper
+            current = .breakout
             next = .plateau
             nextProb = 0.90
         } else if ageMinutes > 120 && deviation < 1.0 {
@@ -148,7 +148,7 @@ class AnalyticsEngine {
                 DriverItem(title: "Velocity", delta: "+\(Int(deviationRatio * 100))%", impact: "Positive"),
                 DriverItem(title: "Phase", delta: phase.rawValue, impact: "Positive")
             ]
-        } else if phase == .hyper {
+        } else if phase == .breakout {
             action = .postFollowUp
             confidence = 0.70
             drivers = [

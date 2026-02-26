@@ -20,7 +20,7 @@ class PhaseDetector {
         }
         
         if postAgeMinutes > 45, slope >= 4.0, hypeScore >= 65 {
-            return .secondaryPush
+            return .breakout
         }
         
         if abs(slope) < 2.0, hypeScore >= 45, hypeScore <= 70, postAgeMinutes >= 20 {

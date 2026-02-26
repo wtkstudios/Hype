@@ -16,7 +16,7 @@ struct BaselineProfile: Codable, FetchableRecord, PersistableRecord {
 enum DistributionPhase: String, Codable, CaseIterable {
     case testing = "Testing"
     case expanding = "Expanding"
-    case hyper = "HYPER"
+    case breakout = "BREAKOUT"
     case plateau = "Plateau"
     case reignite = "Re-ignite"
     case unknown = "Unknown"

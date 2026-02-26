@@ -75,20 +75,20 @@ class ScoringTests {
         // dt=10, views=+100 -> vpm=10 (1.0 ratio = Neutral)
         // shares=+0.1 -> spm=0.01 (1.0 ratio = Neutral)
         let snapCurrA = VideoSnapshot(videoId: "vidA", timestamp: now, createdAt: createdAt, views: 600, likes: 25, comments: 2, shares: 3)
-        let packA = packBuilder.buildDriverPack(currentSnapshot: snapCurrA, previousSnapshot: snapPrevA, prevPrevSnapshot: nil, baseline: driverBaseline, confidence01: 0.9, recentVpmHistory: historyVPM, recentAccHistory: historyACC, recentSpmHistory: historySPM)
+        let packA = packBuilder.buildDriverPack(currentSnapshot: snapCurrA, previousSnapshot: snapPrevA, prevPrevSnapshot: nil, baseline: driverBaseline, confidence01: 0.9, recentVpmHistory: historyVPM, recentAccHistory: historyACC, recentSpmHistory: historySPM, now: now)
         print("A) Baseline Match - Vel: \(packA.insights.first(where: { $0.kind == .velocity })?.strength.rawValue ?? "") | Shr: \(packA.insights.first(where: { $0.kind == .shares })?.strength.rawValue ?? "")")
         
         // Case B: High shares velocity -> Shares = Strong
         let snapCurrB = VideoSnapshot(videoId: "vidB", timestamp: now, createdAt: createdAt, views: 600, likes: 25, comments: 2, shares: 10)
         // delta shares = +8 -> spm=0.8. (baseline=0.01, ratio=80 -> Strong)
-        let packB = packBuilder.buildDriverPack(currentSnapshot: snapCurrB, previousSnapshot: snapPrevA, prevPrevSnapshot: nil, baseline: driverBaseline, confidence01: 0.9, recentVpmHistory: historyVPM, recentAccHistory: historyACC, recentSpmHistory: historySPM)
+        let packB = packBuilder.buildDriverPack(currentSnapshot: snapCurrB, previousSnapshot: snapPrevA, prevPrevSnapshot: nil, baseline: driverBaseline, confidence01: 0.9, recentVpmHistory: historyVPM, recentAccHistory: historyACC, recentSpmHistory: historySPM, now: now)
         print("B) Breakout Shares - Shr: \(packB.insights.first(where: { $0.kind == .shares })?.strength.rawValue ?? "")")
         
         // Case C: Falling velocity -> Velocity trend = Falling
         let historyVPMHigh = [20.0, 22.0, 19.5] // averge ~20.5
         let snapCurrC = VideoSnapshot(videoId: "vidC", timestamp: now, createdAt: createdAt, views: 580, likes: 20, comments: 2, shares: 2)
         // delta views = 80 -> vpm = 8. (8 is < 20.5 * 0.95 -> Falling)
-        let packC = packBuilder.buildDriverPack(currentSnapshot: snapCurrC, previousSnapshot: snapPrevA, prevPrevSnapshot: nil, baseline: driverBaseline, confidence01: 0.9, recentVpmHistory: historyVPMHigh, recentAccHistory: historyACC, recentSpmHistory: historySPM)
+        let packC = packBuilder.buildDriverPack(currentSnapshot: snapCurrC, previousSnapshot: snapPrevA, prevPrevSnapshot: nil, baseline: driverBaseline, confidence01: 0.9, recentVpmHistory: historyVPMHigh, recentAccHistory: historyACC, recentSpmHistory: historySPM, now: now)
         print("C) Falling Velocity - Trend: \(packC.insights.first(where: { $0.kind == .velocity })?.trend.rawValue ?? "")")
     }
 }

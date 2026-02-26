@@ -18,7 +18,10 @@ struct KeyValueRow: Codable, Identifiable {
 
 struct DriverInsight: Codable, Identifiable {
     enum Kind: String, Codable {
-        case velocity, acceleration, shares, engagement
+        case velocity = "velocity"
+        case acceleration = "accel."
+        case shares = "shares"
+        case engagement = "engagement"
     }
     
     let id: String
@@ -27,9 +30,16 @@ struct DriverInsight: Codable, Identifiable {
     let trend: DriverTrend
     let metricLabel: String          // e.g. "Views / min"
     let metricValue: String          // e.g. "52.4"
-    let secondaryLabel: String       // e.g. "+42% vs baseline"
-    let confidenceLabel: String      // e.g. "High confidence"
+    let secondaryLabel: String       // e.g. "+42% vs baseline" (Legacy or explicit formatting)
+    let relativeStatusText: String?  // e.g. "Above usual", "Below usual", "On usual"
+    let confidenceLabel: String      // Optional textual (legacy) or descriptive
     let explanation: String          // 1–2 lines: why it matters
+    // New Analytical Extensions for Polish
+    let impactScore: Double          // Absolute intensity vs baseline for sorting
+    let confidencePercent: Int       // 0-100 numeric equivalent
+    let ageBucketLabel: String       // e.g. "0-15m"
+    let lastUpdateString: String     // e.g. "Just now" or "2m ago"
+    
     let details: [KeyValueRow]       // expanded sheet rows
 }
 
