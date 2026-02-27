@@ -49,7 +49,7 @@ extension DistributionPhase {
         case .expanding:
             return Color.HYPE.tea
         case .breakout:
-            return Color(hex: "00FFDD") // Neon Cyan
+            return Color.HYPE.tangerine // Tangerine
         case .plateau:
             return Color(hex: "A390E4") // Muted Lavender
         case .reignite:
@@ -67,7 +67,7 @@ extension DistributionPhase {
         case .expanding:
             return Color.HYPE.neonGreen // Neon green for expanding
         case .breakout:
-            return Color(hex: "FB923C") // Brighter orange
+            return Color.HYPE.tangerine // Tangerine
         case .plateau:
             return Color(hex: "7DD3FC") // Brighter sky blue
         case .reignite:

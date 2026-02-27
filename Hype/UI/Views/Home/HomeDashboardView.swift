@@ -34,6 +34,7 @@ struct HomeDashboardView: View {
     
     @State private var showingAddAccount = false
     @State private var showingNotifications = false
+    @State private var showingAccountSwitcher = false
     @State private var navPath = NavigationPath()
     let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     
@@ -58,13 +59,9 @@ struct HomeDashboardView: View {
             .navigationBarHidden(true)
             .navigationDestination(for: String.self) { destination in
                 if destination == "AccountDashboard" {
-                    // Placeholder for AccountDashboardView.
-                    // The original snippet had `AccountDashboardView(userId: viewModel.account?.id ?? "")`
-                    // but viewModel does not have an `account` property.
-                    // Assuming a simple placeholder for now.
-                    Text("Account Dashboard View")
-                        .navigationTitle("Account Dashboard")
-                        .foregroundColor(.white)
+                    AccountDashboardView(userId: "current_user")
+                } else if destination == "Alerts" {
+                    AlertInboxView()
                 }
             }
             .onAppear {
@@ -81,11 +78,16 @@ struct HomeDashboardView: View {
                 // Notifications view // This view is not defined in the original code.
                 Text("Notifications View")
             }
+            .sheet(isPresented: $showingAccountSwitcher) {
+                AccountSwitcherSheet()
+                    .presentationDetents([.height(420)])
+                    .presentationDragIndicator(.visible)
+            }
         }
     }
     
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        ZStack {
             HStack {
                 Text("HYPE")
                     .font(.system(size: 24, weight: .black, design: .monospaced))
@@ -93,25 +95,39 @@ struct HomeDashboardView: View {
                 
                 Spacer()
                 
-                // Account Switcher Placeholder
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(Color.HYPE.primary)
-                        .frame(width: 24, height: 24)
-                    Text("@creator")
-                        .font(.system(size: 14, weight: .bold))
+                Button(action: {
+                    navPath.append("Alerts")
+                }) {
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 14))
                         .foregroundColor(Color.HYPE.text)
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(Color.HYPE.text)
+                        .padding(10)
+                        .background(Color.white.opacity(0.1))
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .fill(Color.HYPE.error)
+                                .frame(width: 8, height: 8)
+                                .offset(x: -2, y: 0),
+                            alignment: .topLeading
+                        )
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(100)
+                
+                // Account Switcher (Profile Only)
+                Button(action: {
+                    showingAccountSwitcher = true
+                }) {
+                    Circle()
+                        .fill(Color(red: 0.5, green: 0.53, blue: 0.9))
+                        .frame(width: 34, height: 34)
+                }
+                .padding(.leading, 8)
             }
             
-            BlinkingMomentumIndicator(overallScore: viewModel.overallScore)
+            // Center Tag Line
+            Text("moments measured.")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(Color.HYPE.text.opacity(0.7))
         }
     }
     
@@ -242,9 +258,8 @@ struct HomeDashboardView: View {
                     }
                     
                     // Main Content Columns
-                    HStack(alignment: .center, spacing: 16) {
-                        // LEFT CLUSTER
-                        VStack(alignment: .leading, spacing: 18) {
+                    VStack(spacing: 16) {
+                        HStack(alignment: .top) {
                             // Score Block
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack(alignment: .top, spacing: 8) {
@@ -285,6 +300,51 @@ struct HomeDashboardView: View {
                                     .kerning(1)
                             }
                             
+                            Spacer()
+                            
+                            // Top Right Stats
+                            VStack(alignment: .trailing, spacing: 14) {
+                                // Graph
+                                Path { path in
+                                    path.move(to: CGPoint(x: 0, y: 35))
+                                    path.addLine(to: CGPoint(x: 25, y: 30))
+                                    path.addLine(to: CGPoint(x: 50, y: 18))
+                                    path.addLine(to: CGPoint(x: 80, y: 5))
+                                }
+                                .stroke(GraphColorResolver.strokeColor(trend: .up), lineWidth: 3.5)
+                                .shadow(color: GraphColorResolver.strokeColor(trend: .up).opacity(0.5), radius: 3, x: 0, y: 2)
+                                .frame(width: 80, height: 40) // Match width of Account graph above for symmetry
+                                
+                                // Phase Block
+                                VStack(alignment: .trailing, spacing: 6) {
+                                    HStack(spacing: 6) {
+                                        Text("PHASE:")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(Color.HYPE.text.opacity(0.5))
+                                            .fixedSize(horizontal: true, vertical: false)
+                                            
+                                        Text(viewModel.currentPhase.rawValue.uppercased())
+                                            .font(.system(size: 8, weight: .black))
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 4)
+                                            .background(viewModel.currentPhase.color.opacity(0.15))
+                                            .foregroundColor(viewModel.currentPhase.color)
+                                            .cornerRadius(4)
+                                            .fixedSize(horizontal: true, vertical: false)
+                                    }
+                                    
+                                    Text("+15% VS BASELINE")
+                                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                        .foregroundColor(Color.HYPE.text.opacity(0.85))
+                                        .fixedSize(horizontal: true, vertical: false)
+                                        .lineLimit(1)
+                                }
+                            }
+                            .padding(.trailing, 14)
+                        }
+                        
+                        // Bottom Row (Metrics & Post Title)
+                        HStack(alignment: .bottom) {
                             // Mini Metrics Row
                             HStack(spacing: 8) {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -316,56 +376,24 @@ struct HomeDashboardView: View {
                                         .foregroundColor(Color.HYPE.text)
                                 }
                             }
-                        }
-                        
-                        Spacer()
-                        
-                        // RIGHT CLUSTER
-                        VStack(alignment: .center, spacing: 14) {
-                            // Graph
-                            Path { path in
-                                path.move(to: CGPoint(x: 0, y: 35))
-                                path.addLine(to: CGPoint(x: 25, y: 30))
-                                path.addLine(to: CGPoint(x: 50, y: 18))
-                                path.addLine(to: CGPoint(x: 80, y: 5))
-                            }
-                            .stroke(GraphColorResolver.strokeColor(trend: .up), lineWidth: 3.5)
-                            .shadow(color: GraphColorResolver.strokeColor(trend: .up).opacity(0.5), radius: 3, x: 0, y: 2)
-                            .frame(width: 80, height: 40) // Match width of Account graph above for symmetry
                             
-                            // Phase Block
-                            VStack(alignment: .center, spacing: 6) {
-                                HStack(spacing: 6) {
-                                    Text("PHASE:")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(Color.HYPE.text.opacity(0.5))
-                                        .fixedSize(horizontal: true, vertical: false)
-                                        
-                                    Text(viewModel.currentPhase.rawValue.uppercased())
-                                        .font(.system(size: 8, weight: .black))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 4)
-                                        .background(viewModel.currentPhase.color.opacity(0.15))
-                                        .foregroundColor(viewModel.currentPhase.color)
-                                        .cornerRadius(4)
-                                        .fixedSize(horizontal: true, vertical: false)
-                                }
-                                
-                                Text("+15% VS BASELINE")
-                                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                                    .foregroundColor(Color.HYPE.text.opacity(0.85))
-                                    .fixedSize(horizontal: true, vertical: false)
-                                    .lineLimit(1)
-                                
-                                Text(viewModel.mockVideo1.title)
+                            Spacer(minLength: 16)
+                            
+                            // Post Title
+                            HStack(alignment: .top, spacing: 4) {
+                                Text("POST:")
                                     .font(.system(size: 10, weight: .medium))
                                     .foregroundColor(Color.HYPE.text.opacity(0.5))
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
+                                    .padding(.top, 1)
+                                Text(viewModel.mockVideo1.title)
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(Color.white)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .multilineTextAlignment(.trailing)
                             }
+                            .frame(maxWidth: 160, alignment: .trailing)
+                            .padding(.trailing, 14)
                         }
-                        .padding(.trailing, 14) // Offset for .center alignment to maintain perfect graph edge symmetry
-                        .padding(.bottom, 2)
                     }
                     .padding(.top, 16)
                 }
@@ -558,46 +586,3 @@ struct AccountTrendSparklineView: View {
 
 // MARK: - Subcomponents
 
-struct BlinkingMomentumIndicator: View {
-    let overallScore: Int
-    @State private var isBlinking = false
-    
-    var color: Color {
-        if overallScore >= 80 {
-            return Color.HYPE.tea // Green
-        } else if overallScore >= 50 {
-            return Color.orange // Moderate / Orange
-        } else {
-            return Color.HYPE.error // Red / Slow dying
-        }
-    }
-    
-    var text: String {
-        if overallScore >= 80 {
-            return "Momentum: Strong & Stable. Maintain cadence."
-        } else if overallScore >= 50 {
-            return "Momentum: Moderate. Monitor closely."
-        } else {
-            return "Momentum: Slow dying. Action required."
-        }
-    }
-    
-    var body: some View {
-        HStack(alignment: .center, spacing: 6) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-                .opacity(isBlinking ? 1.0 : 0.4)
-                .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isBlinking)
-                .onAppear {
-                    isBlinking = true
-                }
-            
-            Text(text)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(Color.HYPE.text.opacity(0.7))
-            
-            Spacer()
-        }
-    }
-}

@@ -3,11 +3,12 @@ import SwiftUI
 struct DriverCardView: View {
     let insight: DriverInsight
     let isTopDriver: Bool
+    var onExpand: (() -> Void)? = nil
     
     @State private var isExpanded = false
     
     // Custom neon accents
-    private let neonGreenAccent = Color.HYPE.neonGreen
+    private let neonGreenAccent = Color.HYPE.tea
     private let neonRedAccent = Color.HYPE.neonRed
     
     private var strengthColor: Color {
@@ -29,30 +30,27 @@ struct DriverCardView: View {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     isExpanded.toggle()
                 }
+                if isExpanded {
+                    // Slight delay to allow layout to compute new size before scrolling
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        onExpand?()
+                    }
+                }
             }) {
                 VStack(alignment: .leading, spacing: 14) {
                     // Top Row: Title + Strength Pill
                     HStack(alignment: .top) {
-                        Text(insight.kind.rawValue.uppercased())
+                        let dynamicTitle = insight.kind == .acceleration ? "ACCELERATION" : insight.kind.rawValue.uppercased()
+                        Text(dynamicTitle)
                             .font(.system(size: 11, weight: .black))
                             .foregroundColor(Color.HYPE.text.opacity(0.8))
                             .lineLimit(1)
-                            .minimumScaleFactor(0.80)
+                            .minimumScaleFactor(0.70) // Allow slightly more shrinking if needed
                             .allowsTightening(true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
                         // Top Driver Badge + Strength Pill
                         HStack(spacing: 6) {
-                            if isTopDriver && insight.strength == .strong {
-                                Text("#1")
-                                    .font(.system(size: 8, weight: .black))
-                                    .foregroundColor(Color.black)
-                                    .padding(.horizontal, 4)
-                                    .padding(.vertical, 2)
-                                    .background(neonGreenAccent)
-                                    .cornerRadius(3)
-                            }
-                            
                             Text(insight.strength.rawValue.uppercased())
                                 .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(strengthColor)

@@ -1,40 +1,80 @@
 import SwiftUI
+import Combine
 
 struct PostDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     let video: VideoCardData
+    
+    // State for smooth close animation
+    @State private var isClosing = false
     
     var body: some View {
         ZStack {
             Color.HYPE.base.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 32) {
-                    header
-                    scoreModule
-                    velocityGraph
-                    keyDrivers
+                ScrollViewReader { proxy in
+                    VStack(spacing: 32) {
+                        customHeader
+                        scoreModule
+                        velocityGraph
+                        keyDrivers(proxy: proxy)
+                        nextActionCard
+                    }
+                    .padding()
                 }
-                .padding()
             }
+            .opacity(isClosing ? 0 : 1)
+            .scaleEffect(isClosing ? 0.95 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.8, blendDuration: 0), value: isClosing)
         }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
+        .enableSwipeBack()
+        .interactiveDismissDisabled(isClosing) // Prevent standard swipe while animating
     }
     
-    private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 8) {
+    private var customHeader: some View {
+        ZStack(alignment: .top) {
+            // Centered Title and Time
+            VStack(spacing: 4) {
                 Text(video.title)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(Color.HYPE.text)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
                 
                 Text("Posted 24m ago")
-                    .font(.system(size: 14, weight: .regular))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.HYPE.text.opacity(0.5))
             }
-            Spacer()
+            .padding(.horizontal, 50) // Keep text away from the close button
+            .padding(.top, 4)
+            .frame(maxWidth: .infinity)
+            
+            // Top Left Close Button
+            HStack {
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        isClosing = true
+                    }
+                    // Delay dismiss slightly to allow animation to play
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                        dismiss()
+                    }
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(Color.HYPE.text.opacity(0.8))
+                        .frame(width: 32, height: 32)
+                        .background(Color.white.opacity(0.08))
+                        .clipShape(Circle())
+                }
+                Spacer()
+            }
         }
     }
+    
+    
     
     private var scoreModule: some View {
         VStack(spacing: 8) {
@@ -55,48 +95,26 @@ struct PostDetailView: View {
                     .rotationEffect(.degrees(-5))
                     .offset(y: 20)
             }
-            .padding(.bottom, 8)
             
-            // HYPE COMPOSITION (out of 10) under Score
-            VStack(alignment: .leading, spacing: 12) {
-                Text("HYPE COMPOSITION")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(Color.HYPE.text.opacity(0.4))
-                
-                let contribs = mockDriverPack.contribution
-                let cVel = CGFloat(contribs["Velocity"] ?? 0)
-                let cShr = CGFloat(contribs["Shares"] ?? 0)
-                let cAcc = CGFloat(contribs["Acceleration"] ?? 0)
-                let cEng = CGFloat(contribs["Engagement"] ?? 0)
-                let rawTotal = cVel + cShr + cAcc + cEng > 0 ? (cVel + cShr + cAcc + cEng) : 100.0
-                
-                let wVel = cVel / rawTotal
-                let wShr = cShr / rawTotal
-                let wAcc = cAcc / rawTotal
-                let wEng = cEng / rawTotal
-                
-                // Total is mapping directly to the actual out-of-10 hype score points math requested
-                let outOfTenScore = video.score / 10.0
-                
-                GeometryReader { geo in
-                    let w = geo.size.width
-                    let spacing: CGFloat = 3
-                    let availableW = max(0, w - (spacing * 3))
-                    
-                    HStack(alignment: .bottom, spacing: spacing) {
-                        if cVel > 0 { compSegment(width: availableW * wVel, color: Color.HYPE.tangerine, label: "Vel", percent: outOfTenScore * wVel) }
-                        if cShr > 0 { compSegment(width: availableW * wShr, color: Color.HYPE.primary, label: "Share", percent: outOfTenScore * wShr) }
-                        if cAcc > 0 { compSegment(width: availableW * wAcc, color: Color.HYPE.neonGreen, label: "Accel", percent: outOfTenScore * wAcc) }
-                        if cEng > 0 { compSegment(width: availableW * wEng, color: Color.HYPE.tea, label: "Eng", percent: outOfTenScore * wEng) }
-                    }
-                }
-                .frame(height: 32)
-            }
-            .padding(16)
-            .background(Color.white.opacity(0.03))
-            .cornerRadius(12)
+            Text("Out of 100pts")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(Color.HYPE.text.opacity(0.4))
+                .padding(.bottom, 8)
             
-            // 24H Trajectory moved under Hype Composition
+            // Move PhaseTimelineView (Lifecycle Phase) above the 24H Trajectory
+            PhaseTimelineView(prediction: PhasePrediction(
+                currentPhase: video.phase,
+                nextPhase: .breakout,
+                nextPhaseProbability: 0.85,
+                updatedAt: Date()
+            ))
+            .padding(.top, 8)
+            
+            // Real-time metric trackers
+            RealtimeTickersView(video: video)
+                .padding(.top, 16)
+                
+            // 24H Trajectory
             TrajectoryPanelView(forecast: ForecastSnapshot(
                 videoId: video.id,
                 computedAt: Date(),
@@ -134,13 +152,6 @@ struct PostDetailView: View {
     private var velocityGraph: some View {
         VStack(spacing: 12) {
             DistributionLifecycleCard(model: mockLifecycleLine)
-            
-            PhaseTimelineView(prediction: PhasePrediction(
-                currentPhase: video.phase,
-                nextPhase: .breakout,
-                nextPhaseProbability: 0.85,
-                updatedAt: Date()
-            ))
         }
     }
     
@@ -155,7 +166,7 @@ struct PostDetailView: View {
         return builder.buildDriverPack(currentSnapshot: snap1, previousSnapshot: snap2, prevPrevSnapshot: nil, baseline: baseline, confidence01: 0.85, recentVpmHistory: [250, 300, 280], recentAccHistory: [10, -5, 20], recentSpmHistory: [8, 12, 9], now: now)
     }
     
-    private var keyDrivers: some View {
+    private func keyDrivers(proxy: ScrollViewProxy) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("DRIVERS")
@@ -175,35 +186,185 @@ struct PostDetailView: View {
             let columns = [GridItem(.flexible()), GridItem(.flexible())]
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(mockDriverPack.insights) { insight in
-                    DriverCardView(insight: insight, isTopDriver: insight.id == topDriverId)
+                    DriverCardView(insight: insight, isTopDriver: insight.id == topDriverId) {
+                        withAnimation {
+                            proxy.scrollTo(insight.id, anchor: .center)
+                        }
+                    }
+                    .id(insight.id)
                 }
             }
         }
     }
     
-    // Segment rendering helper with percentage logic -> mapped to points out of 10
-    private func compSegment(width: CGFloat, color: Color, label: String, percent: Double) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("\(label) \(String(format: "%.1f", percent))pts")
-                .font(.system(size: 9, weight: .bold))
-                .foregroundColor(color)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+    private var nextActionCard: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("NEXT ACTION")
+                    .font(.system(size: 12, weight: .black))
+                    .foregroundColor(Color.HYPE.primary)
+                
+                Text(video.phase == .expanding ? "Respond to top comment" : "Pin new video hook")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(Color.HYPE.text)
+                
+                Text(video.phase == .expanding ? "High Confidence (88%)" : "Medium Confidence")
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(Color.HYPE.text.opacity(0.6))
+            }
             
-            Rectangle()
-                .fill(color)
-                .frame(height: 10)
-                .cornerRadius(2)
+            Spacer()
+            
+            Button(action: {
+                let impact = UIImpactFeedbackGenerator(style: .medium)
+                impact.impactOccurred()
+            }) {
+                Text("Execute")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(Color.HYPE.base)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Color.HYPE.tangerine) // Strict constraint: Tangerine ONLY for primary executions
+                    .cornerRadius(8)
+            }
         }
-        .frame(width: max(0, width), alignment: .leading)
+        .padding()
+        .background(Color.HYPE.primary.opacity(0.15))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.HYPE.primary.opacity(0.3), lineWidth: 1)
+        )
+    }
+}
+
+private struct RealtimeTickersView: View {
+    let video: VideoCardData
+    
+    @State private var views: Int
+    @State private var likes: Int
+    @State private var comments: Int
+    @State private var shares: Int
+    
+    // Timer to simulate live data ticking up
+    let timer = Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()
+    
+    init(video: VideoCardData) {
+        self.video = video
+        
+        // Synthesize realistic base metrics from the video score
+        let baseViews = max(Int(video.score * 1250), 1500)
+        self._views = State(wrappedValue: baseViews)
+        self._likes = State(wrappedValue: Int(Double(baseViews) * 0.08)) // ~8% like rate
+        self._comments = State(wrappedValue: Int(Double(baseViews) * 0.009)) // ~0.9% comment rate
+        self._shares = State(wrappedValue: Int(Double(baseViews) * 0.015)) // ~1.5% share rate
     }
     
-    private func legendItem(color: Color, text: String) -> some View {
-        HStack(spacing: 4) {
-            Circle().fill(color).frame(width: 6, height: 6)
-            Text(text)
-                .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(Color.HYPE.text.opacity(0.6))
+    var body: some View {
+        HStack(spacing: 0) {
+            TickerItemView(title: "VIEWS", value: views)
+            divider
+            TickerItemView(title: "LIKES", value: likes)
+            divider
+            TickerItemView(title: "CMNTS", value: comments)
+            divider
+            TickerItemView(title: "SHARES", value: shares)
         }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.HYPE.primary.opacity(0.2), lineWidth: 1)
+        )
+        // Simulator tick
+        .onReceive(timer) { _ in
+            withAnimation(.spring(response: 0.2, dampingFraction: 0.8)) {
+                // Random deterministic jitter based on phase acceleration
+                let vStep = Int.random(in: 1...15)
+                views += vStep
+                
+                if vStep > 10 { likes += Int.random(in: 1...3) }
+                if vStep == 15 { comments += 1 }
+                if vStep % 5 == 0 { shares += 1 }
+            }
+        }
+    }
+    
+    private var divider: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.1))
+            .frame(width: 1, height: 24)
+    }
+    
+    
+}
+
+private struct TickerItemView: View {
+    let title: String
+    let value: Int
+    
+    @State private var flashScale: CGFloat = 1.0
+    @State private var flashColor: Color = .white
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(title)
+                .font(.system(size: 9, weight: .heavy))
+                .foregroundColor(Color.HYPE.text.opacity(0.4))
+                .kerning(0.5)
+            
+            let formatter = NumberFormatter()
+            let _ = formatter.numberStyle = .decimal
+            let valueStr = formatter.string(from: NSNumber(value: value)) ?? "\(value)"
+            let characters = Array(valueStr)
+            
+            HStack(spacing: 0) {
+                ForEach(0..<characters.count, id: \.self) { index in
+                    let placeValue = characters.count - 1 - index
+                    DigitView(char: characters[index])
+                        .id(placeValue)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+private struct DigitView: View {
+    let char: Character
+    
+    @State private var flashScale: CGFloat = 1.0
+    @State private var flashColor: Color = .white
+    
+    var body: some View {
+        Text(String(char))
+            .font(.system(size: 14, weight: .bold, design: .monospaced))
+            .foregroundColor(flashColor)
+            .scaleEffect(flashScale)
+            .shadow(color: flashColor == Color.HYPE.tea ? Color.HYPE.tea.opacity(0.6) : .clear, radius: 4)
+            .contentTransition(.numericText()) // Smooth iOS 16 native numeric scroll
+            .onChange(of: char) { newValue in
+                // Only animate digits, not commas
+                guard newValue.isNumber else { return }
+                
+                let impact = UIImpactFeedbackGenerator(style: .soft)
+                impact.prepare()
+                impact.impactOccurred(intensity: 0.6)
+                
+                withAnimation(.spring(response: 0.2, dampingFraction: 0.4)) {
+                    flashScale = 1.15
+                    flashColor = Color.HYPE.tea
+                }
+                
+                // Revert quickly
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        flashScale = 1.0
+                        flashColor = .white
+                    }
+                }
+            }
     }
 }

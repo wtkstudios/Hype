@@ -22,12 +22,12 @@ struct MainTabView: View {
                     Text("Intelligence")
                 }
             
-            AlertInboxView()
+
+            TerminalTabView()
                 .tabItem {
-                    Image(systemName: "bell.fill")
-                    Text("Alerts")
+                    Image(systemName: "waveform.path.ecg")
+                    Text("Terminal")
                 }
-                .badge(3)
             
             SettingsView()
                 .tabItem {
